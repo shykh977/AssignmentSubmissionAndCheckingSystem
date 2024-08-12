@@ -1,0 +1,7 @@
+{
+     "ConnectionStrings": {
+      
+      "MSSqlStr": "mssql+pyodbc://sa:BTG12345#@192.168.5.250/BTGGS?driver=ODBC+Driver+17+for+SQL+Server"   
+    }
+  }
+  

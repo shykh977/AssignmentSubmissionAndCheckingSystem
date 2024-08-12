@@ -1,0 +1,105 @@
+from flask import Flask ,request,jsonify
+from sqlalchemy import create_engine, Column, Integer, String, text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from DataConnectionLayer.DbConfig import DbConfig
+
+import uuid
+
+from DataRepository.GenericRepo import ExecuteProc
+
+
+app = Flask(__name__)
+
+
+
+#connection_string = 'mssql+pyodbc://sa:BTG12345#@192.168.5.250/WaterJar?driver=ODBC+Driver+17+for+SQL+Server'
+
+conn = DbConfig()
+
+connection_string =  conn.GetConnection()
+
+
+#engine = create_engine(connection_string, echo=True)
+
+Base = declarative_base()
+
+class Society(Base):
+    __tablename__ = 'SocityName'
+
+    SocityId = Column(String, primary_key=True)
+    SocityName =Column(String)
+    UserId =Column(String)
+
+
+    # id = Column(Integer, primary_key=True)
+    # name = Column(String)
+    # email = Column(String)
+
+#Base.metadata.create_all(engine)
+
+@app.route("/CreateEntry",methods=['POST'])
+def hello_world():
+    # Session = sessionmaker(bind=engine)
+    # session = Session()
+    
+    
+    keys =[]
+    params = request.json;
+
+    for key in params.keys(): 
+        
+        # x = key.split(',')
+        keys.append(key)
+
+
+    converted_array = [f":{item}" for item in keys]
+    converted_string = ", ".join(converted_array)
+
+   
+    #update_employee = text("EXEC update_employee :employee_id, :name, :age")
+    Create_Update_Society = text("EXEC usp_Create_Update_Society "+converted_string)
+
+    
+    
+
+    # params = {        
+    #     "SocityId": uuid.uuid1(),
+    #     "SocityName": "NewTown",
+    #     "UserId" :uuid.uuid2(),
+    #     "AreaId": uuid.uuid3(),
+    #     "Districtid": uuid.uuid4()  
+    # }
+
+
+    procname = 'usp_Create_Update_Society'
+   
+    o1 = ExecuteProc()
+
+    response = o1.Exec_Proc(procname,params)
+
+    # result = session.execute(Create_Update_Society, params)
+    # session.commit()
+
+     
+   
+
+    # user = Society(SocityId=uuid.uuid1(), SocityName='john@example.com', UserId=uuid.uuid1())
+    # session.add(user)
+    # session.commit()
+
+    # if result.rowcount > 0:
+    #      response ="Success"
+    # else:
+    #      response ="Failed"
+
+    return response
+
+
+
+# main driver function
+if __name__ == '__main__':
+
+	# run() method of Flask class runs the application
+	# on the local development server.
+	app.run()
